@@ -1,0 +1,52 @@
+{
+  "name": "Canal 3 - João Brás & Filhos",
+  "short_name": "Canal 3",
+  "description": "Restaurante Canal 3 - João Brás & Filhos. Porto.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#163328",
+  "theme_color": "#163328",
+  "orientation": "portrait-primary",
+  "lang": "pt",
+  "id": "canal3-joaobras-porto",
+  "categories": [
+    "food",
+    "lifestyle"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "Screenshot_20260403_000643_Chrome.jpg",
+      "sizes": "1080x2187",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Ecrã inicial do Canal 3"
+    }
+  ]
+}
