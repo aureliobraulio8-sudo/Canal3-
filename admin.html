@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#163328"/>
+<title>Admin — Canal 3</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,400;0,700;1,400;1,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Manrope',sans-serif;background:#f4f3f1;color:#1a1c1b;min-height:100dvh}
+.ms{font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;line-height:1}
+.sc::-webkit-scrollbar{display:none}.sc{-ms-overflow-style:none;scrollbar-width:none}
+.tab{display:none}.tab.on{display:block}
+.pill.on{background:#163328;color:white}
+.login{position:fixed;inset:0;background:#163328;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.shadow-c{box-shadow:0 2px 12px rgba(22,51,40,0.07)}
+.ldr{position:fixed;inset:0;background:rgba(22,51,40,.88);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.spin{width:38px;height:38px;border:3px solid rgba(200,169,110,.3);border-top-color:#c8a96e;border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;top:18px;left:12px;right:12px;z-index:300;background:#163328;color:#fff;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);transform:translateY(-100px);opacity:0;transition:all .3s ease}
+.toast.on{transform:translateY(0);opacity:1}
+.bp{background:#fff3e0;color:#e65100}
+.bpr{background:#e3f2fd;color:#1565c0}
+.bpn{background:#e8f5e9;color:#2e7d32}
+.bc{background:#e8f5e9;color:#2e7d32}
+.bca{background:#ffebee;color:#c62828}
+</style>
+</head>
+<body class="pb-28">
+
+<!-- LOADER -->
+<div id="ldr" class="ldr hidden">
+  <div class="spin"></div>
+  <p class="text-[#c8a96e] text-sm font-semibold">A sincronizar...</p>
+</div>
+
+<!-- LOGIN -->
+<div id="loginwrap" class="login">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-8">
+      <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span class="ms text-[#c8a96e] text-4xl" style="font-variation-settings:'FILL' 1">admin_panel_settings</span>
+      </div>
+      <h1 style="font-family:'Epilogue',sans-serif" class="font-bold italic text-white text-3xl">Canal 3</h1>
+      <p class="text-white/50 text-xs mt-1 uppercase tracking-widest">Painel de Administração</p>
+    </div>
+    <div class="space-y-4">
+      <div class="relative">
+        <span class="ms absolute left-4 top-1/2 -translate-y-1/2 text-white/40">lock</span>
+        <input id="lpw" type="password" placeholder="Palavra-passe" autocomplete="current-password"
+          class="w-full bg-white/10 border border-white/20 rounded-xl py-4 pl-12 pr-12 text-white placeholder-white/30 focus:outline-none focus:border-[#c8a96e]"
+          onkeydown="if(event.key==='Enter')doLogin()"/>
+        <button onclick="tgpw('lpw','leye')" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40">
+          <span class="ms" id="leye">visibility</span>
+        </button>
+      </div>
+      <p id="lerr" class="text-red-400 text-sm text-center hidden">Palavra-passe incorreta.</p>
+      <button onclick="doLogin()" class="w-full bg-[#c8a96e] text-[#163328] py-4 rounded-xl font-bold text-sm tracking-wider uppercase active:opacity-80">ENTRAR</button>
+    </div>
+    <p class="text-center mt-6"><a href="index.html" class="text-white/30 text-xs underline">← Voltar ao app do cliente</a></p>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminapp" class="hidden">
+
+<header class="bg-[#163328] px-5 pb-5 pt-12">
+  <div class="flex justify-between items-center mb-3">
+    <button onclick="openSide()" class="ms text-[#c8a96e] text-2xl select-none">menu</button>
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <span class="ms text-[#c8a96e] text-2xl select-none">notifications</span>
+        <span id="ndot" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#163328]"></span>
+      </div>
+      <a href="index.html" class="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center active:bg-white/20">
+        <span class="ms text-white/70 text-sm">open_in_new</span>
+      </a>
+    </div>
+  </div>
+  <p class="text-white/50 text-[10px] uppercase tracking-widest font-bold">Painel de gestão</p>
+  <h1 style="font-family:'Epilogue',sans-serif" class="font-bold italic text-white text-3xl">Administração</h1>
+</header>
+
+<!-- SIDE -->
+<div id="sidebg" class="fixed inset-0 bg-black/50 z-[200] hidden" onclick="closeSide()"></div>
+<div id="sidenav" class="fixed top-0 left-0 h-full w-72 bg-[#163328] z-[201] -translate-x-full transition-transform duration-300 flex flex-col">
+  <div class="p-6 pt-14 border-b border-white/10">
+    <p style="font-family:'Epilogue',sans-serif" class="italic text-xl text-[#c8a96e] font-bold">Administração</p>
+    <p class="text-white/40 text-xs mt-0.5">Canal 3 — João Brás & Filhos</p>
+  </div>
+  <div class="flex-1 p-4 space-y-1">
+    <button onclick="sw('pedidos');closeSide()" class="w-full text-left px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 flex items-center gap-3 text-sm"><span class="ms text-[#c8a96e]">shopping_bag</span>Pedidos</button>
+    <button onclick="sw('menu');closeSide()" class="w-full text-left px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 flex items-center gap-3 text-sm"><span class="ms text-[#c8a96e]">restaurant_menu</span>Menu</button>
+    <button onclick="sw('promos');closeSide()" class="w-full text-left px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 flex items-center gap-3 text-sm"><span class="ms text-[#c8a96e]">local_offer</span>Promoções</button>
+    <button onclick="sw('reservas');closeSide()" class="w-full text-left px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 flex items-center gap-3 text-sm"><span class="ms text-[#c8a96e]">event_available</span>Reservas</button>
+    <button onclick="sw('alertas');closeSide()" class="w-full text-left px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 flex items-center gap-3 text-sm"><span class="ms text-[#c8a96e]">notifications</span>Alertas</button>
+    <button onclick="sw('seguranca');closeSide()" class="w-full text-left px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 flex items-center gap-3 text-sm"><span class="ms text-[#c8a96e]">shield</span>Segurança</button>
+  </div>
+  <div class="p-4 border-t border-white/10">
+    <button onclick="doLogout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-400/10 text-sm"><span class="ms">logout</span>Sair</button>
+  </div>
+</div>
+
+<!-- PILLS -->
+<div class="bg-white border-b border-gray-100 sticky top-0 z-40">
+  <div class="flex gap-2 px-4 py-3 overflow-x-auto sc">
+    <button onclick="sw('pedidos')" id="pill-pedidos" class="pill on flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-gray-100 text-gray-600 whitespace-nowrap"><span class="ms text-base">shopping_bag</span>Pedidos</button>
+    <button onclick="sw('menu')" id="pill-menu" class="pill flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 whitespace-nowrap"><span class="ms text-base">restaurant_menu</span>Menu</button>
+    <button onclick="sw('promos')" id="pill-promos" class="pill flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 whitespace-nowrap"><span class="ms text-base">local_offer</span>Promoções</button>
+    <button onclick="sw('reservas')" id="pill-reservas" class="pill flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 whitespace-nowrap"><span class="ms text-base">event_available</span>Reservas</button>
+    <button onclick="sw('alertas')" id="pill-alertas" class="pill flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 whitespace-nowrap"><span class="ms text-base">notifications</span>Alertas</button>
+    <button onclick="sw('seguranca')" id="pill-seguranca" class="pill flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 whitespace-nowrap"><span class="ms text-base">shield</span>Segurança</button>
+  </div>
+</div>
+
+<main class="px-4 pt-5 pb-32">
+
+<!-- PEDIDOS -->
+<div id="tab-pedidos" class="tab on">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-bold text-[#163328] text-lg">Pedidos</h2>
+    <div class="flex items-center gap-3">
+      <span class="flex items-center gap-1 text-green-600 text-[10px] font-bold">
+        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>LIVE
+      </span>
+      <button onclick="clearOrders()" class="text-xs text-red-400 flex items-center gap-1 active:opacity-70"><span class="ms text-sm">delete_sweep</span>Limpar</button>
+    </div>
+  </div>
+  <div id="ordlist" class="space-y-3"></div>
+  <div id="ordempty" class="py-16 text-center">
+    <span class="ms text-5xl text-gray-200 block">shopping_bag</span>
+    <p class="text-gray-400 mt-2 text-sm">Nenhum pedido ainda.</p>
+    <p class="text-gray-300 text-xs mt-1">Os pedidos dos clientes aparecem aqui.</p>
+  </div>
+</div>
+
+<!-- MENU -->
+<div id="tab-menu" class="tab">
+  <h2 class="font-bold text-[#163328] text-lg mb-4">Gestão do Menu</h2>
+
+  <div class="bg-[#163328] rounded-2xl p-4 mb-5">
+    <p class="text-[#c8a96e] text-[10px] uppercase tracking-widest font-bold mb-2">⭐ Prato do Dia</p>
+    <select id="pdsel" class="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-white text-sm focus:outline-none mb-3">
+      <option value="">— Nenhum prato do dia —</option>
+    </select>
+    <button onclick="savePD()" class="w-full bg-[#c8a96e] text-[#163328] py-3 rounded-xl font-bold text-xs uppercase tracking-wider active:opacity-80">GUARDAR PRATO DO DIA</button>
+  </div>
+
+  <div class="bg-white rounded-2xl p-4 shadow-c border border-gray-100 mb-5">
+    <h3 class="font-bold text-[#163328] text-sm mb-3 flex items-center gap-2"><span class="ms text-[#c8a96e] text-base">add_circle</span>Adicionar Prato</h3>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-[10px] font-bold text-[#163328] uppercase tracking-wider mb-1">Nome do Prato *</label>
+        <input id="dn" type="text" placeholder="Ex: Bacalhau à Brás" class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328]"/>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-[#163328] uppercase tracking-wider mb-1">Descrição</label>
+        <input id="dd" type="text" placeholder="Descrição breve" class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328]"/>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[10px] font-bold text-[#163328] uppercase tracking-wider mb-1">Preço (€) *</label>
+          <input id="dpr" type="number" step="0.01" min="0.01" placeholder="0.00" class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328]"/>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-[#163328] uppercase tracking-wider mb-1">Categoria</label>
+          <select id="dcat" class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328] bg-white">
+            <option value="entradas">Entradas</option>
+            <option value="peixe">Peixe</option>
+            <option value="carne">Carne</option>
+            <option value="sobremesas">Sobremesas</option>
+            <option value="vinhos">Vinhos</option>
+            <option value="outros">Outros</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-[#163328] uppercase tracking-wider mb-1">URL da Imagem</label>
+        <input id="dimg" type="url" placeholder="https://i.ibb.co/..." class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328]"/>
+        <p class="text-xs text-gray-400 mt-1">💡 Carrega a foto em <strong>imgbb.com</strong> → copia o link direto</p>
+      </div>
+      <button onclick="addDish()" class="w-full bg-[#163328] text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 active:opacity-80">
+        <span class="ms text-sm">add</span>ADICIONAR AO MENU
+      </button>
+    </div>
+  </div>
+
+  <div id="menuadmin" class="space-y-3"></div>
+  <div id="menuadminempty" class="py-12 text-center">
+    <span class="ms text-5xl text-gray-200 block">restaurant_menu</span>
+    <p class="text-gray-400 mt-2 text-sm">Menu vazio. Adicione o primeiro prato!</p>
+  </div>
+</div>
+
+<!-- PROMOS -->
+<div id="tab-promos" class="tab">
+  <h2 class="font-bold text-[#163328] text-lg mb-4">Promoções</h2>
+  <div class="bg-white rounded-2xl p-4 shadow-c border border-gray-100 mb-5">
+    <div class="space-y-3">
+      <input id="ptit" type="text" placeholder="Título da promoção *" class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328]"/>
+      <input id="pdesc" type="text" placeholder="Descrição" class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328]"/>
+      <input id="pdisc" type="text" placeholder="Desconto (ex: -20%, 2x1)" class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328]"/>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block text-xs text-gray-400 mb-1">Data Início</label><input id="pst" type="date" class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328]"/></div>
+        <div><label class="block text-xs text-gray-400 mb-1">Data Fim</label><input id="pen" type="date" class="w-full border border-gray-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-[#163328]"/></div>
+      </div>
+      <button onclick="addPromo()" class="w-full bg-[#163328] text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 active:opacity-80">
+        <span class="ms text-sm">add</span>ADICIONAR PROMOÇÃO
+      </button>
+    </div>
+  </div>
+  <div id="promlist" class="space-y-3"></div>
+  <div id="promompty" class="py-12 text-center"><span class="ms text-5xl text-gray-200 block">local_offer</span><p class="text-gray-400 mt-2 text-sm">Nenhuma promoção criada.</p></div>
+</div>
+
+<!-- RESERVAS -->
+<div id="tab-reservas" class="tab">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-bold text-[#163328] text-lg">Reservas</h2>
+    <button onclick="clearReservas()" class="text-xs text-red-400 flex items-center gap-1 active:opacity-70"><span class="ms text-sm">delete_sweep</span>Limpar</button>
+  </div>
+  <div id="reslist" class="space-y-3"></div>
+  <div id="resempty" class="py-16 text-center"><span class="ms text-5xl text-gray-200 block">event_available</span><p class="text-gray-400 mt-2 text-sm">Nenhuma reserva recebida.</p></div>
+</div>
+
+<!-- ALERTAS -->
+<div id="tab-alertas" class="tab">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-bold text-[#163328] text-lg">Alertas</h2>
+    <button onclick="markRead()" class="text-xs text-[#c8a96e] font-semibold active:opacity-70">Marcar todos lidos</button>
+  </div>
+  <div id="altlist" class="space-y-3"></div>
+  <div id="altempty" class="py-16 text-center"><span class="ms text-5xl text-gray-200 block">notifications</span><p class="text-gray-400 mt-2 text-sm">Nenhum alerta.</p></div>
+</div>
+
+<!-- SEGURANÇA -->
+<div id="tab-seguranca" class="tab">
+  <h2 class="font-bold text-[#163328] text-lg mb-5">Segurança</h2>
+  <div class="bg-white rounded-2xl p-5 shadow-c border border-gray-100">
+    <div class="flex flex-col items-center mb-6">
+      <div class="w-16 h-16 bg-[#163328]/10 rounded-full flex items-center justify-center mb-3"><span class="ms text-[#163328] text-3xl">lock</span></div>
+      <h3 class="font-bold text-[#163328]">Alterar Palavra-passe</h3>
+      <p class="text-gray-400 text-xs text-center mt-1">Sincroniza em todos os dispositivos</p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-[#163328] uppercase tracking-wider mb-1.5">Palavra-passe Atual</label>
+        <div class="relative">
+          <input id="pwc" type="password" placeholder="••••••••" class="w-full border border-gray-200 rounded-xl py-3 px-4 pr-12 text-sm focus:outline-none focus:border-[#163328]"/>
+          <button onclick="tgpw('pwc','ec')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"><span class="ms text-sm" id="ec">visibility</span></button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-[#163328] uppercase tracking-wider mb-1.5">Nova Palavra-passe</label>
+        <div class="relative">
+          <input id="pwn" type="password" placeholder="••••••••" oninput="checkStr()" class="w-full border border-gray-200 rounded-xl py-3 px-4 pr-12 text-sm focus:outline-none focus:border-[#163328]"/>
+          <button onclick="tgpw('pwn','en')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"><span class="ms text-sm" id="en">visibility</span></button>
+        </div>
+        <div class="flex gap-1 mt-1.5">
+          <div id="s1" class="flex-1 h-1 bg-gray-200 rounded-full"></div>
+          <div id="s2" class="flex-1 h-1 bg-gray-200 rounded-full"></div>
+          <div id="s3" class="flex-1 h-1 bg-gray-200 rounded-full"></div>
+        </div>
+        <p id="slbl" class="text-[11px] text-gray-400 mt-1"></p>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-[#163328] uppercase tracking-wider mb-1.5">Confirmar Nova</label>
+        <div class="relative">
+          <input id="pwcf" type="password" placeholder="••••••••" class="w-full border border-gray-200 rounded-xl py-3 px-4 pr-12 text-sm focus:outline-none focus:border-[#163328]"/>
+          <button onclick="tgpw('pwcf','ecf')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"><span class="ms text-sm" id="ecf">visibility</span></button>
+        </div>
+      </div>
+      <p id="pwerr" class="text-red-500 text-xs hidden"></p>
+      <p id="pwok" class="text-green-600 text-xs hidden">✓ Palavra-passe alterada em todos os dispositivos!</p>
+      <button onclick="changePw()" class="w-full bg-[#163328] text-white py-4 rounded-xl font-bold text-sm tracking-wider uppercase active:opacity-80">GUARDAR ALTERAÇÕES</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="fixed bottom-0 w-full z-50">
+  <div class="mx-3 mb-3 bg-white rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.1)] border border-gray-100 flex justify-around items-center py-3 px-2">
+    <button onclick="sw('pedidos')" id="an-pedidos" class="flex flex-col items-center gap-0.5 px-2 py-1 text-gray-400 anb"><span class="ms text-xl">shopping_bag</span><span class="text-[9px] font-bold uppercase tracking-wider">Pedidos</span></button>
+    <button onclick="sw('menu')" id="an-menu" class="flex flex-col items-center gap-0.5 px-2 py-1 text-gray-400 anb"><span class="ms text-xl">restaurant_menu</span><span class="text-[9px] font-bold uppercase tracking-wider">Menu</span></button>
+    <button onclick="sw('promos')" id="an-promos" class="flex flex-col items-center gap-0.5 px-2 py-1 text-gray-400 anb"><span class="ms text-xl">local_offer</span><span class="text-[9px] font-bold uppercase tracking-wider">Promoções</span></button>
+    <button onclick="sw('reservas')" id="an-reservas" class="flex flex-col items-center gap-0.5 px-2 py-1 text-gray-400 anb"><span class="ms text-xl">event_available</span><span class="text-[9px] font-bold uppercase tracking-wider">Reservas</span></button>
+    <button onclick="sw('alertas')" id="an-alertas" class="flex flex-col items-center gap-0.5 px-2 py-1 text-gray-400 anb"><span class="ms text-xl">notifications</span><span class="text-[9px] font-bold uppercase tracking-wider">Alertas</span></button>
+    <button onclick="sw('seguranca')" id="an-seguranca" class="flex flex-col items-center gap-0.5 px-2 py-1 text-gray-400 anb"><span class="ms text-xl">shield</span><span class="text-[9px] font-bold uppercase tracking-wider">Segurança</span></button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div id="atst" class="toast">
+  <span class="ms text-[#c8a96e]" id="aicon">check_circle</span>
+  <p class="font-semibold text-sm flex-1" id="amsg"></p>
+</div>
+
+</div>
+
+<script>
+// ===== SUPABASE =====
+const SB_URL = 'https://vsiuvpummmxnylfwotys.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzaXV2cHVtbW14bnlsZndvdHlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNzc4NjAsImV4cCI6MjA5MDk1Mzg2MH0.lm3TTzQPQs6PJh49pO5oooDRRDKUlOkkGRU6IhXS9Jg';
+const H = {'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'};
+
+async function sbGet(t,p=''){
+  try{const r=await fetch(`${SB_URL}/rest/v1/${t}?${p}`,{headers:H});if(!r.ok)throw new Error(await r.text());return await r.json();}
+  catch(e){console.error('GET',t,e);return null;}
+}
+async function sbPost(t,d){
+  try{const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return await r.json();}
+  catch(e){console.error('POST',t,e);return null;}
+}
+async function sbPatch(t,id,d){
+  try{const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return await r.json();}
+  catch(e){console.error('PATCH',t,e);return null;}
+}
+async function sbDelete(t,id){
+  try{const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:H});if(!r.ok)throw new Error(await r.text());return true;}
+  catch(e){console.error('DELETE',t,e);return false;}
+}
+async function sbUpsert(t,d,onConflict='key'){
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/${t}?on_conflict=${onConflict}`,{
+      method:'POST',
+      headers:{...H,'Prefer':'resolution=merge-duplicates,return=representation'},
+      body:JSON.stringify(d)
+    });
+    if(!r.ok)throw new Error(await r.text());
+    return await r.json();
+  }catch(e){console.error('UPSERT',t,e);return null;}
+}
+
+const showL=()=>document.getElementById('ldr').classList.remove('hidden');
+const hideL=()=>document.getElementById('ldr').classList.add('hidden');
+
+// ===== AUTH =====
+let adminPw = 'canal3porto2026';
+
+async function doLogin(){
+  const pw = document.getElementById('lpw').value;
+  if(!pw) return;
+  showL();
+  const cfg = await sbGet('config','key=eq.admin_password');
+  hideL();
+  if(cfg && cfg.length > 0) adminPw = cfg[0].value;
+  else adminPw = localStorage.getItem('c3_apw') || 'canal3porto2026';
+
+  if(pw === adminPw){
+    document.getElementById('loginwrap').style.display='none';
+    document.getElementById('adminapp').classList.remove('hidden');
+    initAdmin();
+  } else {
+    document.getElementById('lerr').classList.remove('hidden');
+    setTimeout(()=>document.getElementById('lerr').classList.add('hidden'),3000);
+  }
+}
+
+function doLogout(){
+  document.getElementById('adminapp').classList.add('hidden');
+  document.getElementById('loginwrap').style.display='flex';
+  document.getElementById('lpw').value='';
+}
+
+function tgpw(i,e){const el=document.getElementById(i),ey=document.getElementById(e);if(el.type==='password'){el.type='text';ey.textContent='visibility_off';}else{el.type='password';ey.textContent='visibility';}}
+
+// ===== TABS =====
+function sw(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.anb').forEach(b=>{b.style.color='';});
+  document.getElementById('tab-'+tab).classList.add('on');
+  const p=document.getElementById('pill-'+tab);if(p)p.classList.add('on');
+  const n=document.getElementById('an-'+tab);if(n)n.style.color='#163328';
+  if(tab==='pedidos')loadOrders();
+  if(tab==='menu'){loadMenuAdmin();loadPDSel();}
+  if(tab==='promos')loadPromos();
+  if(tab==='reservas')loadReservas();
+  if(tab==='alertas')loadAlerts();
+}
+
+function openSide(){document.getElementById('sidenav').style.transform='translateX(0)';document.getElementById('sidebg').classList.remove('hidden');}
+function closeSide(){document.getElementById('sidenav').style.transform='';document.getElementById('sidebg').classList.add('hidden');}
+
+function showToast(msg,icon='check_circle'){
+  const t=document.getElementById('atst');
+  document.getElementById('amsg').textContent=msg;
+  document.getElementById('aicon').textContent=icon;
+  t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);
+}
+
+function timeAgo(iso){
+  if(!iso)return'';
+  const d=Math.floor((Date.now()-new Date(iso))/1000);
+  if(d<60)return'agora mesmo';if(d<3600)return`há ${Math.floor(d/60)}min`;
+  if(d<86400)return`há ${Math.floor(d/3600)}h`;return new Date(iso).toLocaleDateString('pt-PT');
+}
+
+function updateNotifDot(){
+  const alerts=JSON.parse(localStorage.getItem('c3_alerts')||'[]');
+  const u=alerts.filter(a=>!a.read).length;
+  const d=document.getElementById('ndot');
+  if(u>0)d.classList.remove('hidden');else d.classList.add('hidden');
+}
+
+// ===== ORDERS =====
+let ordersData = [];
+
+async function loadOrders(){
+  showL();
+  const data = await sbGet('orders','order=created_at.desc');
+  hideL();
+  ordersData = data || [];
+
+  const list=document.getElementById('ordlist'),empty=document.getElementById('ordempty');
+  if(ordersData.length===0){list.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+
+  list.innerHTML = ordersData.map(o=>{
+    let items=[];
+    try{items=typeof o.items==='string'?JSON.parse(o.items):o.items||[];}catch{}
+    return `
+    <div class="bg-white rounded-2xl p-4 shadow-c border border-gray-100">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-[#163328] text-base">Mesa ${o.mesa}</span>
+          <span class="text-gray-300 text-xs">#${String(o.id||'').slice(-6)}</span>
+        </div>
+        <button onclick="delOrder(${o.id})" class="text-red-400 active:text-red-600"><span class="ms text-base">delete</span></button>
+      </div>
+      <ul class="text-sm text-gray-600 mb-3 space-y-1 border-y border-gray-50 py-2">
+        ${items.map(i=>`<li class="flex justify-between"><span>${i.qty}× ${i.name}</span><span class="font-semibold">${(i.price*i.qty).toFixed(2).replace('.',',')}€</span></li>`).join('')}
+      </ul>
+      <div class="flex items-center justify-between">
+        <span class="font-bold text-[#163328]">Total: ${parseFloat(o.total||0).toFixed(2).replace('.',',')}€</span>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-1 rounded-full text-xs font-bold ${o.status==='pendente'?'bp':o.status==='preparacao'?'bpr':'bpn'}">
+            ${o.status==='pendente'?'⏳ Pendente':o.status==='preparacao'?'🔥 Em Preparo':'✅ Pronto'}
+          </span>
+          <select onchange="updOrder(${o.id},this.value)" class="border border-gray-200 rounded-lg text-xs py-1 px-2 bg-white focus:outline-none">
+            <option value="pendente" ${o.status==='pendente'?'selected':''}>Pendente</option>
+            <option value="preparacao" ${o.status==='preparacao'?'selected':''}>Em Preparo</option>
+            <option value="pronto" ${o.status==='pronto'?'selected':''}>Pronto</option>
+          </select>
+        </div>
+      </div>
+      <p class="text-[10px] text-gray-300 mt-2">${timeAgo(o.created_at)}</p>
+    </div>`;
+  }).join('');
+}
+
+async function updOrder(id,status){
+  await sbPatch('orders',id,{status});
+  if(status==='pronto'){await pushAlert(`Pedido Mesa ${ordersData.find(o=>o.id===id)?.mesa||''} está pronto! ✅`,'info');}
+  loadOrders();showToast('Estado atualizado!');
+}
+
+async function delOrder(id){
+  if(!confirm('Eliminar este pedido?'))return;
+  showL();await sbDelete('orders',id);hideL();loadOrders();showToast('Pedido eliminado','delete');
+}
+
+async function clearOrders(){
+  if(!confirm('Eliminar TODOS os pedidos?'))return;
+  showL();
+  for(const o of ordersData) await sbDelete('orders',o.id);
+  hideL();loadOrders();showToast('Pedidos limpos','delete_sweep');
+}
+
+// ===== MENU =====
+let menuAdminData = [];
+
+async function addDish(){
+  const name=document.getElementById('dn').value.trim();
+  const price=parseFloat(document.getElementById('dpr').value);
+  if(!name){showToast('Nome é obrigatório!','warning');return;}
+  if(isNaN(price)||price<=0){showToast('Preço inválido!','warning');return;}
+
+  const dish={name,description:document.getElementById('dd').value.trim(),price,category:document.getElementById('dcat').value,image:document.getElementById('dimg').value.trim()||null,available:true};
+  showL();
+  const result=await sbPost('menu',dish);
+  hideL();
+
+  if(result){
+    document.getElementById('dn').value='';document.getElementById('dd').value='';
+    document.getElementById('dpr').value='';document.getElementById('dimg').value='';
+    await pushAlert(`Novo prato: ${name} 🍽️`,'info');
+    loadMenuAdmin();loadPDSel();
+    showToast('Prato adicionado com sucesso!');
+  } else {
+    showToast('Erro ao adicionar. Verifique o SQL.','error');
+  }
+}
+
+async function loadMenuAdmin(){
+  showL();
+  const data=await sbGet('menu','order=created_at.asc');
+  hideL();
+  menuAdminData=data||[];
+
+  const list=document.getElementById('menuadmin'),empty=document.getElementById('menuadminempty');
+  if(menuAdminData.length===0){list.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+
+  list.innerHTML=menuAdminData.map(item=>`
+    <div class="bg-white rounded-2xl p-4 flex items-center gap-3 shadow-c border border-gray-100">
+      <div class="w-16 h-16 rounded-xl bg-[#e8e8e8] flex-shrink-0 overflow-hidden flex items-center justify-center">
+        ${item.image
+          ?`<img src="${item.image}" class="w-full h-full object-cover rounded-xl" loading="lazy" onerror="this.parentElement.innerHTML='<span style=\\'font-family:Noto Serif,serif;color:#c8a96e;font-size:11px;font-style:italic\\'>FOTO</span>'"/>`
+          :`<span style="font-family:'Noto Serif',serif" class="italic text-[#c8a96e] text-xs">FOTO</span>`}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 flex-wrap mb-0.5">
+          <h3 class="font-bold text-[#163328] text-sm">${item.name}</h3>
+          <span class="px-1.5 py-0.5 rounded-full bg-[#fedb9c] text-[#785f2b] text-[9px] font-bold uppercase">${item.category||''}</span>
+        </div>
+        <p class="text-gray-400 text-xs truncate">${item.description||''}</p>
+        <p class="font-bold text-[#735b28] text-sm mt-0.5">${parseFloat(item.price||0).toFixed(2).replace('.',',')}€</p>
+      </div>
+      <div class="flex flex-col items-end gap-2 flex-shrink-0">
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" class="sr-only peer" ${item.available?'checked':''} onchange="toggleDish(${item.id},this.checked)"/>
+          <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#163328]"></div>
+        </label>
+        <button onclick="delDish(${item.id})" class="text-red-400 active:text-red-600"><span class="ms text-base">delete</span></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function toggleDish(id,val){await sbPatch('menu',id,{available:val});}
+
+async function delDish(id){
+  if(!confirm('Eliminar este prato?'))return;
+  showL();await sbDelete('menu',id);hideL();loadMenuAdmin();loadPDSel();showToast('Prato eliminado','delete');
+}
+
+async function loadPDSel(){
+  const cfg=await sbGet('config','key=eq.prato_dia');
+  const current=cfg&&cfg.length>0?cfg[0].value:'';
+  const sel=document.getElementById('pdsel');
+  const items=menuAdminData.filter(i=>i.available);
+  sel.innerHTML='<option value="">— Nenhum prato do dia —</option>'+items.map(i=>`<option value="${i.name}" ${i.name===current?'selected':''}>${i.name}</option>`).join('');
+}
+
+async function savePD(){
+  const val=document.getElementById('pdsel').value;
+  showL();
+  await sbUpsert('config',{key:'prato_dia',value:val},'key');
+  hideL();
+  showToast(val?`Prato do dia: ${val}`:'Prato do dia removido.');
+}
+
+// ===== PROMOS =====
+let promosData=[];
+
+async function addPromo(){
+  const title=document.getElementById('ptit').value.trim();
+  if(!title){showToast('Título é obrigatório!','warning');return;}
+  const promo={title,description:document.getElementById('pdesc').value.trim(),discount:document.getElementById('pdisc').value.trim(),start_date:document.getElementById('pst').value||null,end_date:document.getElementById('pen').value||null,active:true};
+  showL();const r=await sbPost('promos',promo);hideL();
+  if(r){document.getElementById('ptit').value='';document.getElementById('pdesc').value='';document.getElementById('pdisc').value='';loadPromos();showToast('Promoção adicionada!');}
+  else showToast('Erro ao adicionar promoção','error');
+}
+
+async function loadPromos(){
+  showL();const data=await sbGet('promos','order=created_at.desc');hideL();
+  promosData=data||[];
+  const list=document.getElementById('promlist'),empty=document.getElementById('promompty');
+  if(promosData.length===0){list.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  list.innerHTML=promosData.map(p=>`
+    <div class="bg-white rounded-2xl p-4 shadow-c border border-gray-100">
+      <div class="flex items-start justify-between mb-1">
+        <div class="flex items-center gap-2"><span class="ms text-[#c8a96e]">local_offer</span><h3 class="font-bold text-[#163328] text-sm">${p.title}</h3></div>
+        <div class="flex items-center gap-2">
+          ${p.discount?`<span class="px-2 py-0.5 rounded-full bg-[#fedb9c] text-[#785f2b] text-xs font-bold">${p.discount}</span>`:''}
+          <button onclick="delPromo(${p.id})" class="text-red-400"><span class="ms text-base">delete</span></button>
+        </div>
+      </div>
+      ${p.description?`<p class="text-gray-400 text-xs mb-1 ml-8">${p.description}</p>`:''}
+      <div class="flex items-center justify-between mt-2 ml-8">
+        <span class="text-xs font-semibold ${p.active?'text-green-600':'text-gray-400'}">${p.active?'● Ativa':'○ Inativa'}</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" class="sr-only peer" ${p.active?'checked':''} onchange="togglePromo(${p.id},this.checked)"/>
+          <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#163328]"></div>
+        </label>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function togglePromo(id,val){await sbPatch('promos',id,{active:val});loadPromos();}
+async function delPromo(id){if(!confirm('Eliminar?'))return;showL();await sbDelete('promos',id);hideL();loadPromos();showToast('Promoção eliminada','delete');}
+
+// ===== RESERVAS =====
+let resData=[];
+
+async function loadReservas(){
+  showL();const data=await sbGet('reservas','order=created_at.desc');hideL();
+  resData=data||[];
+  const list=document.getElementById('reslist'),empty=document.getElementById('resempty');
+  if(resData.length===0){list.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  list.innerHTML=resData.map(r=>`
+    <div class="bg-white rounded-2xl p-4 shadow-c border border-gray-100">
+      <div class="flex items-start justify-between mb-2">
+        <div>
+          <h3 class="font-bold text-[#163328] text-sm">${r.name}</h3>
+          <a href="tel:${r.phone}" class="text-[#c8a96e] text-xs">${r.phone}</a>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-1 rounded-full text-xs font-bold ${r.status==='confirmada'?'bc':r.status==='cancelada'?'bca':'bp'}">
+            ${r.status==='confirmada'?'✅ Confirmada':r.status==='cancelada'?'❌ Cancelada':'⏳ Pendente'}
+          </span>
+          <button onclick="delRes(${r.id})" class="text-red-400"><span class="ms text-base">delete</span></button>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
+        <span>${r.date} ${r.time}</span>
+        <span>${r.guests} pessoa${r.guests>1?'s':''}</span>
+      </div>
+      ${r.notes?`<p class="text-xs text-gray-400 mb-2 italic">"${r.notes}"</p>`:''}
+      <div class="flex gap-2">
+        <button onclick="updRes(${r.id},'confirmada')" class="flex-1 bg-green-50 text-green-700 py-2 rounded-xl text-xs font-bold border border-green-200 active:bg-green-100">✓ Confirmar</button>
+        <button onclick="updRes(${r.id},'cancelada')" class="flex-1 bg-red-50 text-red-600 py-2 rounded-xl text-xs font-bold border border-red-200 active:bg-red-100">✗ Cancelar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function updRes(id,status){
+  const r=resData.find(x=>x.id===id);
+  await sbPatch('reservas',id,{status});
+  if(r)await pushAlert(`Reserva de ${r.name} ${status==='confirmada'?'confirmada ✅':'cancelada ❌'}`,status==='confirmada'?'info':'warning');
+  loadReservas();showToast(status==='confirmada'?'Reserva confirmada!':'Reserva cancelada');
+}
+async function delRes(id){if(!confirm('Eliminar?'))return;showL();await sbDelete('reservas',id);hideL();loadReservas();showToast('Reserva eliminada','delete');}
+async function clearReservas(){if(!confirm('Eliminar TODAS?'))return;showL();for(const r of resData)await sbDelete('reservas',r.id);hideL();loadReservas();showToast('Reservas limpas','delete_sweep');}
+
+// ===== ALERTS (local) =====
+function getAlerts(){return JSON.parse(localStorage.getItem('c3_alerts')||'[]');}
+function saveAlerts(a){localStorage.setItem('c3_alerts',JSON.stringify(a));}
+
+async function pushAlert(msg,type='info'){
+  const alerts=getAlerts();
+  alerts.unshift({id:Date.now(),msg,type,read:false,time:new Date().toISOString()});
+  saveAlerts(alerts.slice(0,50));
+  updateNotifDot();
+}
+
+async function loadAlerts(){
+  const alerts=getAlerts();
+  const list=document.getElementById('altlist'),empty=document.getElementById('altempty');
+  if(alerts.length===0){list.innerHTML='';empty.classList.remove('hidden');updateNotifDot();return;}
+  empty.classList.add('hidden');
+  const bc={urgent:'border-l-red-400',warning:'border-l-orange-400',info:'border-l-green-400'};
+  const ic={urgent:'text-red-400',warning:'text-orange-400',info:'text-green-500'};
+  list.innerHTML=alerts.map(a=>`
+    <div class="bg-white rounded-2xl p-4 shadow-c border border-gray-100 border-l-4 ${bc[a.type]||'border-l-green-400'} ${a.read?'opacity-55':''}">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3 flex-1">
+          <span class="ms ${ic[a.type]||'text-green-500'}">notifications</span>
+          <div class="flex-1"><p class="text-sm font-semibold text-[#163328]">${a.msg}</p><p class="text-[11px] text-gray-400">${timeAgo(a.time)}</p></div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          ${!a.read?`<div class="w-2.5 h-2.5 bg-[#c8a96e] rounded-full"></div>`:''}
+          <button onclick="delAlert(${a.id})" class="text-red-400"><span class="ms text-base">delete</span></button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  updateNotifDot();
+}
+
+function markRead(){const a=getAlerts().map(x=>({...x,read:true}));saveAlerts(a);updateNotifDot();loadAlerts();showToast('Todos lidos');}
+function delAlert(id){const a=getAlerts().filter(x=>x.id!==id);saveAlerts(a);updateNotifDot();loadAlerts();}
+
+// ===== SECURITY =====
+function checkStr(){
+  const pw=document.getElementById('pwn').value;
+  const bars=[document.getElementById('s1'),document.getElementById('s2'),document.getElementById('s3')];
+  bars.forEach(b=>b.style.background='#e5e7eb');
+  if(!pw){document.getElementById('slbl').textContent='';return;}
+  let s=0;if(pw.length>=8)s++;if(/[A-Z]/.test(pw)&&/[0-9]/.test(pw))s++;if(/[^A-Za-z0-9]/.test(pw))s++;
+  const cols=['#ef4444','#f97316','#22c55e'],lbs=['Fraca','Média','Forte'];
+  for(let i=0;i<s;i++)bars[i].style.background=cols[s-1];
+  const lbl=document.getElementById('slbl');lbl.textContent=lbs[s-1]||'';lbl.style.color=cols[s-1]||'#9ca3af';
+}
+
+async function changePw(){
+  const cur=document.getElementById('pwc').value;
+  const nw=document.getElementById('pwn').value;
+  const cf=document.getElementById('pwcf').value;
+  const err=document.getElementById('pwerr'),ok=document.getElementById('pwok');
+  err.classList.add('hidden');ok.classList.add('hidden');
+  if(cur!==adminPw){err.textContent='Palavra-passe atual incorreta.';err.classList.remove('hidden');return;}
+  if(nw.length<6){err.textContent='Mínimo 6 caracteres.';err.classList.remove('hidden');return;}
+  if(nw!==cf){err.textContent='As palavras-passe não coincidem.';err.classList.remove('hidden');return;}
+  adminPw=nw;
+  localStorage.setItem('c3_apw',nw);
+  showL();
+  await sbUpsert('config',{key:'admin_password',value:nw},'key');
+  hideL();
+  document.getElementById('pwc').value='';document.getElementById('pwn').value='';document.getElementById('pwcf').value='';
+  ok.classList.remove('hidden');
+  await pushAlert('Palavra-passe alterada 🔒','info');
+  showToast('Palavra-passe alterada em todos os dispositivos!');
+}
+
+// ===== POLLING (novos pedidos e reservas) =====
+let lastOrdCount=0,lastResCount=0;
+
+async function poll(){
+  try{
+    const ords=await sbGet('orders','select=id');
+    const cnt=ords?ords.length:0;
+    if(cnt>lastOrdCount&&lastOrdCount>0){
+      const newest=await sbGet('orders','order=created_at.desc&limit=1');
+      if(newest&&newest[0]) await pushAlert(`🛎️ Novo pedido — Mesa ${newest[0].mesa}!`,'urgent');
+      playDing();
+      if(document.getElementById('tab-pedidos').classList.contains('on')) loadOrders();
+    }
+    lastOrdCount=cnt;
+
+    const rsvs=await sbGet('reservas','select=id');
+    const rc=rsvs?rsvs.length:0;
+    if(rc>lastResCount&&lastResCount>0){
+      const newestr=await sbGet('reservas','order=created_at.desc&limit=1');
+      if(newestr&&newestr[0]) await pushAlert(`📅 Nova reserva de ${newestr[0].name}!`,'warning');
+      if(document.getElementById('tab-reservas').classList.contains('on')) loadReservas();
+    }
+    lastResCount=rc;
+    updateNotifDot();
+  }catch(e){}
+}
+
+function playDing(){
+  try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.setValueAtTime(880,ctx.currentTime);o.frequency.setValueAtTime(1100,ctx.currentTime+.1);o.frequency.setValueAtTime(880,ctx.currentTime+.2);g.gain.setValueAtTime(.35,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.6);o.start(ctx.currentTime);o.stop(ctx.currentTime+.6);}catch{}
+}
+
+// ===== INIT =====
+async function initAdmin(){
+  showL();
+  const [ords,rsvs]=await Promise.all([sbGet('orders','select=id'),sbGet('reservas','select=id')]);
+  lastOrdCount=ords?ords.length:0;
+  lastResCount=rsvs?rsvs.length:0;
+  hideL();
+  sw('pedidos');
+  updateNotifDot();
+  // Poll every 15 seconds
+  setInterval(poll,15000);
+}
+
+document.getElementById('lpw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>
